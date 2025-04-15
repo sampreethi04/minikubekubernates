@@ -1,0 +1,30 @@
+name: Deploy to Minikube
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Minikube
+      run: |
+        curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        sudo mv minikube /usr/local/bin/
+        sudo chmod +x /usr/local/bin/minikube
+        minikube start
+
+    - name: Set up kubectl
+      run: |
+        curl -LO https://dl.k8s.io/release/v1.21.0/bin/linux/amd64/kubectl
+        sudo mv kubectl /usr/local/bin/
+        sudo chmod +x /usr/local/bin/kubectl
+
+    - name: Apply deployment YAML
+      run: kubectl apply -f k8s/deployment-service.yaml
